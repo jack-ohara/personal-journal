@@ -14,7 +14,6 @@ const Title = styled.h1`
   text-align: center;
   font-family: "Dancing Script", cursive;
   font-size: 2.5em;
-  margin-bottom: 0.3em;
 `;
 
 const ContentContainer = styled.div`
@@ -22,12 +21,14 @@ const ContentContainer = styled.div`
   display: flex;
   flex-direction: column;
   overflow: auto;
+  align-items: center;
+  padding: 1em;
 `;
 
 const EditorContainer = styled.section`
   flex-grow: 1;
-  margin: 1em;
-  max-width: 1500px;
+  width: 100%;
+  max-width: 1200px;
   display: flex;
   flex-direction: column;
   gap: 0;
