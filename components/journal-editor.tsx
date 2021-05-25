@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import ReactMde from "react-mde";
-import * as Showdown from "showdown";
+import { Converter } from "showdown";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import "react-mde/lib/styles/css/react-mde-all.css";
 
@@ -26,7 +26,7 @@ const setTextAreaHeight = () => {
   );
 };
 
-const converter = new Showdown.Converter({
+const converter = new Converter({
   tables: true,
   simplifiedAutoLink: true,
   strikethrough: true,
