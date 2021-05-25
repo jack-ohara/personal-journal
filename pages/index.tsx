@@ -63,8 +63,15 @@ const SaveButton = styled.button`
 const HomePage = () => {
   const [value, setValue] = useState("");
 
-  const saveEntry = () => {
-    console.log("Saved");
+  const saveEntry = async () => {
+    const response = await fetch("api/save-entry", {
+      method: "POST",
+      body: JSON.stringify({ file: btoa(value) }),
+    });
+
+    if (response.ok) {
+      console.log(await response.json());
+    }
   };
 
   return (
