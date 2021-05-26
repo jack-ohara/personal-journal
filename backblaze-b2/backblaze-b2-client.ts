@@ -44,8 +44,6 @@ export default class BackblazeB2Client {
         const blob = await response.blob();
         const file = await blob.text();
 
-        console.debug(file);
-
         console.log(`Successfully downloaded ${entryName} from backblaze`);
 
         return file;
