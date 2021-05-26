@@ -13,10 +13,11 @@ export default class BackblazeB2Client {
     this.bucketId = process.env.BUCKET_ID;
   }
 
-  public uploadFile = async (base64File: string) => {
+  public uploadFile = async (base64File: string, fileName: string) => {
     const getUploadUrlResponse = await this.getUploadUrl();
 
     await this.uploadFileInternal(
+      fileName,
       getUploadUrlResponse.uploadUrl,
       getUploadUrlResponse.authorizationToken,
       base64File
@@ -24,13 +25,16 @@ export default class BackblazeB2Client {
   };
 
   private uploadFileInternal = async (
+    fileName: string,
     uploadUrl: string,
     authorizationToken: string,
     file: string
   ) => {
+    console.debug(`Starting file upload. Uploading: ${fileName}`);
+
     const headers = {
       Authorization: authorizationToken,
-      "X-Bz-File-Name": "a-test-entry.txt",
+      "X-Bz-File-Name": fileName,
       "Content-Type": "text/plain",
       "Content-Length": file.length.toString(),
       "X-Bz-Content-Sha1": sha1(file),
@@ -44,7 +48,7 @@ export default class BackblazeB2Client {
       });
 
       if (response.ok) {
-        console.log("Uploaded!");
+        console.log(`Successfully uploaded ${fileName} to backblaze!`);
       } else {
         console.error(response);
         throw new Error(`Failed to upload file: ${JSON.stringify(response)}`);
@@ -57,6 +61,8 @@ export default class BackblazeB2Client {
   private getUploadUrl = async () => {
     const authToken = await this.getAuthToken();
     const apiUrl = await this.getApiUrl();
+
+    console.debug("Retrieving upload URL from backblaze");
 
     if (!authToken) {
       throw new Error(`No auth token found`);
@@ -83,7 +89,7 @@ export default class BackblazeB2Client {
         const getUploadUrlResponse: GetUploadUrlResponse =
           await response.json();
 
-        console.log(getUploadUrlResponse);
+        console.debug("Successfully retrieved upload URL from backblaze");
 
         return getUploadUrlResponse;
       } else {
@@ -98,6 +104,8 @@ export default class BackblazeB2Client {
   };
 
   private getAuthToken = async () => {
+    console.debug("Generating auth from backblaze...");
+
     if (!this.authorization) {
       await this.getAuthorisation();
     }
@@ -130,6 +138,8 @@ export default class BackblazeB2Client {
 
     if (response.ok) {
       this.authorization = await response.json();
+
+      console.debug("Successfully received auth from backblaze");
     } else {
       console.error(response);
       throw new Error(

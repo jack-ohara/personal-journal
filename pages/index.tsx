@@ -81,9 +81,7 @@ const HomePage = () => {
       body: JSON.stringify({ file: btoa(value) }),
     });
 
-    if (response.ok) {
-      console.log(await response.json());
-    } else {
+    if (!response.ok) {
       console.error(response);
       response.json().then((body) => console.log(body));
     }
