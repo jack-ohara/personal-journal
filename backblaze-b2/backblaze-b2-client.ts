@@ -17,6 +17,54 @@ export default class BackblazeB2Client {
     this.bucketId = process.env.BUCKET_ID;
   }
 
+  public getFile = async (entryName: string) => {
+    const authToken = await this.getAuthToken();
+    const downloadUrl = await this.getDownloadUrl();
+    const bucketName = await this.getBucketName();
+
+    if (!authToken) {
+      throw new Error(`No auth token found`);
+    }
+
+    const headers = {
+      Authorization: authToken,
+    };
+
+    const url = `${downloadUrl}/file/${bucketName}/${entryName}`;
+
+    console.debug(`GET ${url}`);
+
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: headers,
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const file = await blob.text();
+
+        console.debug(file);
+
+        console.log(`Successfully downloaded ${entryName} from backblaze`);
+
+        return file;
+      } else if (response.status === 404) {
+        console.debug(`File not found in backblaze: ${entryName}`);
+
+        return null;
+      } else {
+        console.error(response);
+        throw new Error(
+          `Failed to download file ${entryName}: ${JSON.stringify(response)}`
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+
   public uploadFile = async (fileName: string, base64File: string) => {
     const getUploadUrlResponse = await this.getUploadUrl();
 
@@ -71,9 +119,10 @@ export default class BackblazeB2Client {
         return listFileNamesResponse.files;
       } else {
         console.error(response);
-        throw new Error(`Failed to upload file: ${JSON.stringify(response)}`);
+        throw new Error(`Failed to list files: ${JSON.stringify(response)}`);
       }
     } catch (error) {
+      console.error(error);
       throw error;
     }
   };
@@ -108,6 +157,7 @@ export default class BackblazeB2Client {
         throw new Error(`Failed to upload file: ${JSON.stringify(response)}`);
       }
     } catch (error) {
+      console.error(error);
       throw error;
     }
   };
@@ -153,6 +203,7 @@ export default class BackblazeB2Client {
         );
       }
     } catch (error) {
+      console.error(error);
       throw error;
     }
   };
@@ -173,6 +224,22 @@ export default class BackblazeB2Client {
     }
 
     return this.authorization?.apiUrl;
+  };
+
+  private getDownloadUrl = async () => {
+    if (!this.authorization) {
+      await this.getAuthorisation();
+    }
+
+    return this.authorization?.downloadUrl;
+  };
+
+  private getBucketName = async () => {
+    if (!this.authorization) {
+      await this.getAuthorisation();
+    }
+
+    return this.authorization?.allowed.bucketName;
   };
 
   private getAuthorisation = async () => {

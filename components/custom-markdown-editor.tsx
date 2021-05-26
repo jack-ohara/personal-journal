@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import ReactMde from "react-mde";
 import { Converter } from "showdown";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import "react-mde/lib/styles/css/react-mde-all.css";
 
 const EditorContainer = styled.div`
@@ -40,9 +40,11 @@ const CustomMarkdownEditor = ({
   disabled,
 }: JournalEditorProps) => {
   const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
+  const ref = useRef<ReactMde>(null);
 
   useEffect(() => {
     setTextAreaHeight();
+    ref.current?.finalRefs.textarea?.current?.focus();
   }, []);
 
   return (
@@ -62,6 +64,7 @@ const CustomMarkdownEditor = ({
           preview: "editor-preview",
         }}
         readOnly={disabled}
+        ref={ref}
       />
     </EditorContainer>
   );

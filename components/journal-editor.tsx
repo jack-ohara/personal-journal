@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import generateTodaysEntryFileName from "../personal-journal/file-name-generator";
 import CustomMarkdownEditor from "./custom-markdown-editor";
@@ -46,13 +46,22 @@ const SaveButton = styled.button`
 
 interface JournalEditorProps {
   editorStartValue?: string;
+  editingIsDisabled?: boolean;
 }
 
-const JournalEditor = ({ editorStartValue = "" }: JournalEditorProps) => {
+const JournalEditor = ({
+  editorStartValue = "",
+  editingIsDisabled = false,
+}: JournalEditorProps) => {
   const [value, setValue] = useState(editorStartValue);
-  const [editorIsDisabled, setEditorIsDisabled] = useState(false);
+  const [editorIsDisabled, setEditorIsDisabled] = useState(editingIsDisabled);
   const [buttonContents, setButtonContents] =
     useState<string | JSX.Element>("Save");
+
+  useEffect(() => {
+    setValue(editorStartValue);
+    setEditorIsDisabled(false);
+  }, [editorStartValue]);
 
   const saveEntry = async () => {
     setEditorIsDisabled(true);

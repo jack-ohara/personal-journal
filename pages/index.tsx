@@ -4,7 +4,7 @@ import Layout from "../components/layout";
 import JournalEditor from "../components/journal-editor";
 import useSWR from "swr";
 import generateTodaysEntryFileName from "../personal-journal/file-name-generator";
-import fetch from "../utils/fetch";
+import fetcher from "../utils/fetch";
 
 const Title = styled.h1`
   text-align: center;
@@ -21,11 +21,16 @@ const ContentContainer = styled.div`
   padding: 1em;
 `;
 
+interface EntryResponse {
+  entry: string;
+}
+
 const HomePage = () => {
-  // const { data, error } = useSWR(
-  //   `/api/entry/${generateTodaysEntryFileName()}`,
-  //   fetch
-  // );
+  const { data } = useSWR<EntryResponse>(
+    `/api/entries/${encodeURIComponent(generateTodaysEntryFileName())}`,
+    fetcher,
+    { revalidateOnFocus: false, revalidateOnReconnect: false }
+  );
 
   return (
     <Layout>
@@ -36,7 +41,17 @@ const HomePage = () => {
       <ContentContainer>
         <Title>Jack's Journal</Title>
 
-        <JournalEditor />
+        {data ? (
+          <JournalEditor
+            editorStartValue={data.entry ? atob(data.entry) : ""}
+            editingIsDisabled={false}
+          />
+        ) : (
+          <JournalEditor
+            editorStartValue="Looking for today's entry..."
+            editingIsDisabled
+          />
+        )}
       </ContentContainer>
     </Layout>
   );
