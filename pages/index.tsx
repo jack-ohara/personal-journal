@@ -71,6 +71,9 @@ const HomePage = () => {
 
     if (response.ok) {
       console.log(await response.json());
+    } else {
+      console.error(response);
+      response.json().then((body) => console.log(body));
     }
   };
 
