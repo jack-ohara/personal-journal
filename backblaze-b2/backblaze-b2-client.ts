@@ -1,5 +1,9 @@
 import sha1 from "sha1";
-import { BackblazeB2Authorization, GetUploadUrlResponse } from "./backblaze-b2";
+import {
+  BackblazeB2Authorization,
+  GetUploadUrlResponse,
+  ListFileNamesResponse,
+} from "./backblaze-b2";
 
 export default class BackblazeB2Client {
   private applicationKeyId: string | undefined;
@@ -22,6 +26,56 @@ export default class BackblazeB2Client {
       getUploadUrlResponse.authorizationToken,
       base64File
     );
+  };
+
+  public listFiles = async (
+    prefix: string | undefined,
+    delimeter: string | undefined
+  ) => {
+    const authToken = await this.getAuthToken();
+    const apiUrl = await this.getApiUrl();
+
+    console.debug("Retreiving file names from backblaze");
+
+    if (!authToken) {
+      throw new Error(`No auth token found`);
+    }
+
+    const headers = {
+      Authorization: authToken,
+    };
+
+    const body = {
+      bucketId: this.bucketId,
+      prefix: prefix,
+      delimeter: delimeter,
+    };
+
+    const url = `${apiUrl}/b2api/v2/b2_list_file_names`;
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify(body),
+      });
+
+      if (response.ok) {
+        const listFileNamesResponse: ListFileNamesResponse =
+          await response.json();
+
+        console.log(
+          `Successfully retrieved ${listFileNamesResponse.files.length} file names from backblaze`
+        );
+
+        return listFileNamesResponse.files;
+      } else {
+        console.error(response);
+        throw new Error(`Failed to upload file: ${JSON.stringify(response)}`);
+      }
+    } catch (error) {
+      throw error;
+    }
   };
 
   private uploadFileInternal = async (

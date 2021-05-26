@@ -1,64 +1,82 @@
+import { useState } from "react";
 import styled from "styled-components";
-import ReactMde from "react-mde";
-import { Converter } from "showdown";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import "react-mde/lib/styles/css/react-mde-all.css";
+import CustomMarkdownEditor from "./custom-markdown-editor";
+import LoadingSpinner from "./loading-spinner";
 
-const EditorContainer = styled.div`
+const EditorContainer = styled.section`
   flex-grow: 1;
-  margin: 0 auto;
   width: 100%;
-  padding: 1em 2em;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+  background: white;
 `;
 
-export interface JournalEditorProps {
-  value: string;
-  setValue: Dispatch<SetStateAction<string>>;
-  disabled: boolean;
-}
+const SaveButton = styled.button`
+  width: 100%;
+  margin-top: 0;
+  border: none;
+  padding: 0.6em;
+  border-radius: 0 0 3px 3px;
+  background-color: var(--bg-colour-secondary);
+  color: var(--text-colour-secondary);
+  font-size: 1.9em;
+  transition: all 0.15s ease-in-out;
+  transition: transform 0.07s ease-in-out;
 
-const setTextAreaHeight = () => {
-  const editorHeight =
-    document.getElementById("editor-container")?.offsetHeight ?? 0;
+  &:hover,
+  &:active,
+  &:focus {
+    background-color: #00515d;
+  }
 
-  document.documentElement.style.setProperty(
-    "--textarea-size",
-    `${editorHeight - 100}px`
-  );
-};
+  &:active {
+    transform: translateY(2px);
+  }
 
-const converter = new Converter({
-  tables: true,
-  simplifiedAutoLink: true,
-  strikethrough: true,
-  tasklists: true,
-});
+  &:disabled {
+    pointer-events: none;
+    opacity: 0.7;
+  }
+`;
 
-const JournalEditor = ({ value, setValue, disabled }: JournalEditorProps) => {
-  const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
+const JournalEditor = () => {
+  const [value, setValue] = useState("");
+  const [editorIsDisabled, setEditorIsDisabled] = useState(false);
+  const [buttonContents, setButtonContents] =
+    useState<string | JSX.Element>("Save");
 
-  useEffect(() => {
-    setTextAreaHeight();
-  }, []);
+  const saveEntry = async () => {
+    setEditorIsDisabled(true);
+    setButtonContents(<LoadingSpinner size="0.8em" />);
+
+    const response = await fetch("api/save-entry", {
+      method: "POST",
+      body: JSON.stringify({ file: btoa(value) }),
+    });
+
+    if (!response.ok) {
+      console.error(response);
+      response.json().then((body) => console.log(body));
+    }
+
+    window.location.reload();
+  };
 
   return (
-    <EditorContainer id="editor-container">
-      <ReactMde
+    <EditorContainer>
+      <CustomMarkdownEditor
         value={value}
-        onChange={setValue}
-        selectedTab={selectedTab}
-        onTabChange={setSelectedTab}
-        generateMarkdownPreview={(markdown: string) =>
-          Promise.resolve(converter.makeHtml(markdown))
-        }
-        classes={{
-          textArea: "custom-text-area",
-          reactMde: "text-area-container",
-          toolbar: "text-area-toolbar",
-          preview: "editor-preview",
-        }}
-        readOnly={disabled}
+        setValue={setValue}
+        disabled={editorIsDisabled}
       />
+
+      <SaveButton disabled={editorIsDisabled} onClick={() => saveEntry()}>
+        {buttonContents}
+      </SaveButton>
     </EditorContainer>
   );
 };
