@@ -17,7 +17,7 @@ export default class BackblazeB2Client {
     this.bucketId = process.env.BUCKET_ID;
   }
 
-  public uploadFile = async (base64File: string, fileName: string) => {
+  public uploadFile = async (fileName: string, base64File: string) => {
     const getUploadUrlResponse = await this.getUploadUrl();
 
     await this.uploadFileInternal(

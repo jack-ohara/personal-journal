@@ -2,6 +2,9 @@ import styled from "styled-components";
 import Sidebar from "../components/sidebar";
 import Layout from "../components/layout";
 import JournalEditor from "../components/journal-editor";
+import useSWR from "swr";
+import generateTodaysEntryFileName from "../personal-journal/file-name-generator";
+import fetch from "../utils/fetch";
 
 const Title = styled.h1`
   text-align: center;
@@ -19,6 +22,11 @@ const ContentContainer = styled.div`
 `;
 
 const HomePage = () => {
+  // const { data, error } = useSWR(
+  //   `/api/entry/${generateTodaysEntryFileName()}`,
+  //   fetch
+  // );
+
   return (
     <Layout>
       <aside>

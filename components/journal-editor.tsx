@@ -1,5 +1,6 @@
 import { useState } from "react";
 import styled from "styled-components";
+import generateTodaysEntryFileName from "../personal-journal/file-name-generator";
 import CustomMarkdownEditor from "./custom-markdown-editor";
 import LoadingSpinner from "./loading-spinner";
 
@@ -43,8 +44,12 @@ const SaveButton = styled.button`
   }
 `;
 
-const JournalEditor = () => {
-  const [value, setValue] = useState("");
+interface JournalEditorProps {
+  editorStartValue?: string;
+}
+
+const JournalEditor = ({ editorStartValue = "" }: JournalEditorProps) => {
+  const [value, setValue] = useState(editorStartValue);
   const [editorIsDisabled, setEditorIsDisabled] = useState(false);
   const [buttonContents, setButtonContents] =
     useState<string | JSX.Element>("Save");
@@ -53,10 +58,13 @@ const JournalEditor = () => {
     setEditorIsDisabled(true);
     setButtonContents(<LoadingSpinner size="0.8em" />);
 
-    const response = await fetch("api/save-entry", {
-      method: "POST",
-      body: JSON.stringify({ file: btoa(value) }),
-    });
+    const response = await fetch(
+      `api/entries/${encodeURIComponent(generateTodaysEntryFileName())}`,
+      {
+        method: "POST",
+        body: JSON.stringify({ file: btoa(value) }),
+      }
+    );
 
     if (!response.ok) {
       console.error(response);

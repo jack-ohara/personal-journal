@@ -1,9 +1,12 @@
 import { format } from "date-fns";
 
-const generateFileName = () => {
+const generateTodaysEntryFileName = () => {
   const dateTime = new Date();
 
-  return `${format(dateTime, "yyyy-MM-dd")}.txt`;
+  return `${format(dateTime, "yyyy")}/${format(dateTime, "MMM")}/${format(
+    dateTime,
+    "do"
+  )}.txt`;
 };
 
-export default generateFileName;
+export default generateTodaysEntryFileName;
