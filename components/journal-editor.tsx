@@ -14,6 +14,7 @@ const EditorContainer = styled.div`
 export interface JournalEditorProps {
   value: string;
   setValue: Dispatch<SetStateAction<string>>;
+  disabled: boolean;
 }
 
 const setTextAreaHeight = () => {
@@ -33,7 +34,7 @@ const converter = new Converter({
   tasklists: true,
 });
 
-const JournalEditor = ({ value, setValue }: JournalEditorProps) => {
+const JournalEditor = ({ value, setValue, disabled }: JournalEditorProps) => {
   const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
 
   useEffect(() => {
@@ -56,6 +57,7 @@ const JournalEditor = ({ value, setValue }: JournalEditorProps) => {
           toolbar: "text-area-toolbar",
           preview: "editor-preview",
         }}
+        readOnly={disabled}
       />
     </EditorContainer>
   );

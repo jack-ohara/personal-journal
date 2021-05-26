@@ -3,6 +3,7 @@ import styled from "styled-components";
 import Sidebar from "../components/sidebar";
 import JournalEditor from "../components/journal-editor";
 import { useState } from "react";
+import LoadingSpinner from "../components/loading-spinner";
 
 const Main = styled.main`
   display: flex;
@@ -58,12 +59,23 @@ const SaveButton = styled.button`
   &:active {
     transform: translateY(2px);
   }
+
+  &:disabled {
+    pointer-events: none;
+    opacity: 0.7;
+  }
 `;
 
 const HomePage = () => {
   const [value, setValue] = useState("");
+  const [editorIsDisabled, setEditorIsDisabled] = useState(false);
+  const [buttonContents, setButtonContents] =
+    useState<string | JSX.Element>("Save");
 
   const saveEntry = async () => {
+    setEditorIsDisabled(true);
+    setButtonContents(<LoadingSpinner size="0.8em" />);
+
     const response = await fetch("api/save-entry", {
       method: "POST",
       body: JSON.stringify({ file: btoa(value) }),
@@ -75,6 +87,8 @@ const HomePage = () => {
       console.error(response);
       response.json().then((body) => console.log(body));
     }
+
+    window.location.reload();
   };
 
   return (
@@ -99,9 +113,15 @@ const HomePage = () => {
           <Title>Jack's Journal</Title>
 
           <EditorContainer>
-            <JournalEditor value={value} setValue={setValue} />
+            <JournalEditor
+              value={value}
+              setValue={setValue}
+              disabled={editorIsDisabled}
+            />
 
-            <SaveButton onClick={() => saveEntry()}>Save</SaveButton>
+            <SaveButton disabled={editorIsDisabled} onClick={() => saveEntry()}>
+              {buttonContents}
+            </SaveButton>
           </EditorContainer>
         </ContentContainer>
       </Main>
