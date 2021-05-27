@@ -4,9 +4,8 @@ import JournalEditor from "../components/journal-editor";
 import useSWR from "swr";
 import generateTodaysEntryFileName from "../personal-journal/file-name-generator";
 import fetcher from "../utils/fetch";
-import * as NetlifyIdentity from "netlify-identity-widget";
 import { format } from "date-fns";
-import { useEffect } from "react";
+import GoTrue from "gotrue-js";
 
 const Title = styled.h1`
   text-align: center;
@@ -32,7 +31,11 @@ interface StoicQuoteResponse {
   author: string;
 }
 
-export default function AuthorisedHomePage() {
+interface AuthorisedHomePageProps {
+  auth: GoTrue;
+}
+
+export default function AuthorisedHomePage({ auth }: AuthorisedHomePageProps) {
   const { data } = useSWR<EntryResponse>(
     `/api/entries/${encodeURIComponent(generateTodaysEntryFileName())}`,
     fetcher,
@@ -51,14 +54,10 @@ export default function AuthorisedHomePage() {
     }\n>\n> \\- ${randomQuoteData?.author}\n\n`;
   };
 
-  useEffect(() => {
-    NetlifyIdentity.close();
-  }, []);
-
   return (
     <>
       <aside>
-        <Sidebar />
+        <Sidebar auth={auth} />
       </aside>
 
       <ContentContainer>

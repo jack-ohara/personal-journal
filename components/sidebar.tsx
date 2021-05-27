@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import * as NetlifyIdentity from "netlify-identity-widget";
+import GoTrue from "gotrue-js";
 
 const Container = styled.div`
   min-width: 400px;
@@ -19,13 +19,23 @@ const Button = styled.button`
   font-size: 1.3em;
 `;
 
-const Sidebar = () => {
+interface SidebarProps {
+  auth: GoTrue;
+}
+
+const Sidebar = ({ auth }: SidebarProps) => {
+  const logout = async () => {
+    await auth.currentUser()?.logout();
+
+    window.location.reload();
+  };
+
   return (
     <Container>
       <NavContainer>
-        Hi, {NetlifyIdentity.currentUser()?.user_metadata.full_name}
+        Hi, {auth.currentUser()?.user_metadata.full_name}
       </NavContainer>
-      <Button onClick={() => NetlifyIdentity.logout()}>Logout</Button>
+      <Button onClick={() => logout()}>Logout</Button>
     </Container>
   );
 };

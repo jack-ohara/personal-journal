@@ -1,28 +1,33 @@
-import { useEffect, useState } from "react";
 import Layout from "../components/layout";
-import * as NetlifyIdentity from "netlify-identity-widget";
 import AuthorisedHomePage from "../components/authorised-home-page";
 import Login from "../components/login";
+import { useEffect, useState } from "react";
+import { getGoTrue } from "../utils/go-true";
 
 const HomePage = () => {
-  const [isAuthorised, setIsAuthorised] = useState(false);
-  useEffect(() => {
-    NetlifyIdentity.init();
+  const auth = getGoTrue();
 
-    const currentUser = NetlifyIdentity.currentUser();
+  const [isAuthorised, setIsAuthorised] = useState(false);
+
+  useEffect(() => {
+    const currentUser = auth.currentUser();
 
     if (!currentUser) {
-      NetlifyIdentity.on("login", () => setIsAuthorised(true));
-
       return;
     }
-
-    NetlifyIdentity.on("logout", () => setIsAuthorised(false));
 
     setIsAuthorised(true);
   }, []);
 
-  return <Layout>{isAuthorised ? <AuthorisedHomePage /> : <Login />}</Layout>;
+  return (
+    <Layout>
+      {isAuthorised ? (
+        <AuthorisedHomePage auth={auth} />
+      ) : (
+        <Login auth={auth} />
+      )}
+    </Layout>
+  );
 };
 
 export default HomePage;
