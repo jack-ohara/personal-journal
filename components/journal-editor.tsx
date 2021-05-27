@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import generateTodaysEntryFileName from "../personal-journal/file-name-generator";
+import Button from "./button";
 import CustomMarkdownEditor from "./custom-markdown-editor";
 import LoadingSpinner from "./loading-spinner";
 
@@ -14,34 +15,6 @@ const EditorContainer = styled.section`
   box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.2);
   border-radius: 3px;
   background: white;
-`;
-
-const SaveButton = styled.button`
-  width: 100%;
-  margin-top: 0;
-  border: none;
-  padding: 0.6em;
-  border-radius: 0 0 3px 3px;
-  background-color: var(--bg-colour-secondary);
-  color: var(--text-colour-secondary);
-  font-size: 1.9em;
-  transition: all 0.15s ease-in-out;
-  transition: transform 0.07s ease-in-out;
-
-  &:hover,
-  &:active,
-  &:focus {
-    background-color: #00515d;
-  }
-
-  &:active {
-    transform: translateY(2px);
-  }
-
-  &:disabled {
-    pointer-events: none;
-    opacity: 0.7;
-  }
 `;
 
 interface JournalEditorProps {
@@ -91,9 +64,9 @@ const JournalEditor = ({
         disabled={editorIsDisabled}
       />
 
-      <SaveButton disabled={editorIsDisabled} onClick={() => saveEntry()}>
+      <Button disabled={editorIsDisabled} onClick={() => saveEntry()}>
         {buttonContents}
-      </SaveButton>
+      </Button>
     </EditorContainer>
   );
 };
