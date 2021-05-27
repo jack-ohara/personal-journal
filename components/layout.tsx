@@ -1,6 +1,6 @@
 import Head from "next/head";
-import { ReactNode } from "react";
 import styled from "styled-components";
+import { ReactNode } from "react";
 
 const Main = styled.main`
   display: flex;

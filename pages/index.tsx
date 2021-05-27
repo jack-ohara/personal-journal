@@ -1,78 +1,28 @@
-import styled from "styled-components";
-import Sidebar from "../components/sidebar";
+import { useEffect, useState } from "react";
 import Layout from "../components/layout";
-import JournalEditor from "../components/journal-editor";
-import useSWR from "swr";
-import generateTodaysEntryFileName from "../personal-journal/file-name-generator";
-import fetcher from "../utils/fetch";
-import { format } from "date-fns";
-
-const Title = styled.h1`
-  text-align: center;
-  font-family: "Dancing Script", cursive;
-  font-size: 2.5em;
-`;
-
-const ContentContainer = styled.div`
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: auto;
-  align-items: center;
-  padding: 1em;
-`;
-
-interface EntryResponse {
-  entry: string;
-}
-
-interface StoicQuoteResponse {
-  body: string;
-  author: string;
-}
+import * as NetlifyIdentity from "netlify-identity-widget";
+import AuthorisedHomePage from "../components/authorised-home-page";
+import Login from "../components/login";
 
 const HomePage = () => {
-  const { data } = useSWR<EntryResponse>(
-    `/api/entries/${encodeURIComponent(generateTodaysEntryFileName())}`,
-    fetcher,
-    { revalidateOnFocus: false, revalidateOnReconnect: false }
-  );
+  const [isAuthorised, setIsAuthorised] = useState(false);
+  useEffect(() => {
+    NetlifyIdentity.init();
 
-  const { data: randomQuoteData } = useSWR<StoicQuoteResponse>(
-    "https://stoicquotesapi.com/v1/api/quotes/random",
-    fetcher,
-    { revalidateOnFocus: false, revalidateOnReconnect: false }
-  );
+    const currentUser = NetlifyIdentity.currentUser();
 
-  const getNewEntryText = () => {
-    return `# ${format(new Date(), "do MMMM yyyy")}\n\n> ${
-      randomQuoteData?.body
-    }\n>\n> \\- ${randomQuoteData?.author}\n\n`;
-  };
+    if (!currentUser) {
+      NetlifyIdentity.on("login", () => setIsAuthorised(true));
 
-  return (
-    <Layout>
-      <aside>
-        <Sidebar />
-      </aside>
+      return;
+    }
 
-      <ContentContainer>
-        <Title>Jack's Journal</Title>
+    NetlifyIdentity.on("logout", () => setIsAuthorised(false));
 
-        {data && randomQuoteData ? (
-          <JournalEditor
-            editorStartValue={data.entry ? atob(data.entry) : getNewEntryText()}
-            editingIsDisabled={false}
-          />
-        ) : (
-          <JournalEditor
-            editorStartValue="Looking for today's entry..."
-            editingIsDisabled
-          />
-        )}
-      </ContentContainer>
-    </Layout>
-  );
+    setIsAuthorised(true);
+  }, []);
+
+  return <Layout>{isAuthorised ? <AuthorisedHomePage /> : <Login />}</Layout>;
 };
 
 export default HomePage;
