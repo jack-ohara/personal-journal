@@ -1,17 +1,25 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import getAllEntries from "../../../personal-journal/get-all-entries";
 
-interface GetEntriesRequest {
-  prefix: string | undefined;
-  delimeter: string | undefined;
-}
-
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     if (req.method === "GET") {
-      const request: GetEntriesRequest = JSON.parse(req.body);
+      const { prefix, delimiter } = req.query;
 
-      const result = await getAllEntries(request.prefix, request.delimeter);
+      if (Array.isArray(prefix)) {
+        res.status(400).json({ error: "Prefix must be a single string" });
+        return;
+      }
+
+      if (Array.isArray(delimiter)) {
+        res.status(400).json({ error: "Delimiter must be a single string" });
+        return;
+      }
+
+      console.log(prefix);
+      console.log(delimiter);
+
+      const result = await getAllEntries(prefix, delimiter);
 
       res.status(201).json({ entries: result });
     } else {

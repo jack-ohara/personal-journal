@@ -76,7 +76,7 @@ export default class BackblazeB2Client {
 
   public listFiles = async (
     prefix: string | undefined,
-    delimeter: string | undefined
+    delimiter: string | undefined
   ) => {
     const authToken = await this.getAuthToken();
     const apiUrl = await this.getApiUrl();
@@ -94,7 +94,7 @@ export default class BackblazeB2Client {
     const body = {
       bucketId: this.bucketId,
       prefix: prefix,
-      delimeter: delimeter,
+      delimiter: delimiter,
     };
 
     const url = `${apiUrl}/b2api/v2/b2_list_file_names`;
