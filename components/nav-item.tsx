@@ -61,6 +61,10 @@ const NameContainer = styled.button`
 `;
 
 const FileUnorderedList = styled.ul`
+  li {
+    padding-left: 15px;
+  }
+
   li:first-of-type {
     padding-bottom: 0;
   }

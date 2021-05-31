@@ -1,6 +1,7 @@
 import createEntry from "../../../personal-journal/create-entry";
 import getEntry from "../../../personal-journal/get-entry";
 import { NextApiRequest, NextApiResponse } from "next";
+import { decryptFile, encryptFile } from "../../../utils/file-encryption";
 
 interface CreateEntryRequest {
   file: string;
@@ -25,11 +26,37 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         return;
       }
 
-      res.status(200).json({ entry });
+      if (!process.env.ENCRYPTION_PASSWORD) {
+        console.error("Encryption password not found");
+        res.status(500).json({ message: "Encryption password not found" });
+
+        return;
+      }
+
+      const decryptedFile = decryptFile(
+        Buffer.from(entry, "base64").toString(),
+        process.env.ENCRYPTION_PASSWORD
+      );
+
+      res
+        .status(200)
+        .json({ entry: Buffer.from(decryptedFile).toString("base64") });
     } else if (req.method === "POST") {
       const request: CreateEntryRequest = JSON.parse(req.body);
 
-      await createEntry(entryName, request.file);
+      if (!process.env.ENCRYPTION_PASSWORD) {
+        console.error("Encryption password not found");
+        res.status(500).json({ message: "Encryption password not found" });
+
+        return;
+      }
+
+      const encryptedFile = encryptFile(
+        Buffer.from(request.file, "base64").toString(),
+        process.env.ENCRYPTION_PASSWORD
+      );
+
+      await createEntry(entryName, encryptedFile);
 
       res.status(201).end();
     }
