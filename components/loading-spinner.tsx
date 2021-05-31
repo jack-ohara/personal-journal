@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 const Spinner = styled.div`
-  color: #ffffff;
+  color: ${(props: SpinnerStyleProps) => props.colour ?? "#ffffff"};
   font-size: ${(props: SpinnerStyleProps) => props.size};
   text-indent: -9999em;
   overflow: hidden;
@@ -102,14 +102,16 @@ const Spinner = styled.div`
 
 export interface LoadingSpinnerProps {
   size: string;
+  colour?: string;
 }
 
 interface SpinnerStyleProps {
   size: string;
+  colour?: string;
 }
 
-const LoadingSpinner = ({ size }: LoadingSpinnerProps) => {
-  return <Spinner size={size} />;
+const LoadingSpinner = ({ size, colour }: LoadingSpinnerProps) => {
+  return <Spinner size={size} colour={colour} />;
 };
 
 export default LoadingSpinner;

@@ -5,11 +5,11 @@ import NavItem from "./nav-item";
 import { useEntries } from "../backblaze-b2/get-entries";
 import { useAppContext } from "../utils/state";
 
-const Container = styled.div`
+const Container = styled.aside`
   min-width: 305px;
   min-height: 100%;
   background-color: var(--bg-colour-primary);
-  display: flex;
+  display: ${(props: StyleProps) => (props.isDisplayed ? "flex" : "none")};
   flex-direction: column;
   justify-content: space-between;
   color: white;
@@ -33,7 +33,6 @@ const Button = styled.button`
   border: none;
   border-radius: 6px;
   color: white;
-  font-weight: 600;
 
   &:hover {
     text-decoration: underline;
@@ -44,13 +43,23 @@ const Button = styled.button`
 const AuthContainer = styled.div`
   padding: 0.5em;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2em;
 `;
+
+const MenuControls = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+interface StyleProps {
+  isDisplayed: boolean;
+}
 
 const Sidebar = () => {
   const { entries: childItems, isLoading } = useEntries("", "/");
-  const { user, logout } = useAppContext();
+  const { user, logout, navIsDisplayed, setNavIsDisplayed } = useAppContext();
 
   const doLogout = async () => {
     await logout();
@@ -59,7 +68,7 @@ const Sidebar = () => {
   };
 
   return (
-    <Container>
+    <Container isDisplayed={navIsDisplayed}>
       {isLoading ? (
         <LoadingSpinner size="2em" />
       ) : (
@@ -73,10 +82,20 @@ const Sidebar = () => {
           </NavContainer>
         )
       )}
-      <AuthContainer>
-        👋 Hi, {user?.user_metadata.full_name}
-        <Button onClick={() => doLogout()}>Logout</Button>
-      </AuthContainer>
+
+      <MenuControls>
+        <AuthContainer>
+          👋 Hi, {user?.user_metadata.full_name}
+          <Button onClick={() => doLogout()}>Logout</Button>
+        </AuthContainer>
+
+        <Button
+          style={{ marginRight: "1em", fontWeight: 800 }}
+          onClick={() => setNavIsDisplayed(false)}
+        >
+          {"<<"}
+        </Button>
+      </MenuControls>
     </Container>
   );
 };

@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import generateTodaysEntryFileName from "../personal-journal/file-name-generator";
 import Button from "./button";
 import CustomMarkdownEditor from "./custom-markdown-editor";
+import JounralContainer from "./journal-container";
 import LoadingSpinner from "./loading-spinner";
+import { useAppContext } from "../utils/state";
 
 const EditorContainer = styled.section`
   flex-grow: 1;
@@ -31,17 +33,23 @@ const JournalEditor = ({
   const [buttonContents, setButtonContents] =
     useState<string | JSX.Element>("Save");
 
+  const todaysEntryName = generateTodaysEntryFileName();
+
+  const { selectedEntry } = useAppContext();
+
   useEffect(() => {
     setValue(editorStartValue);
     setEditorIsDisabled(false);
   }, [editorStartValue]);
+
+  useEffect(() => {}, [selectedEntry]);
 
   const saveEntry = async () => {
     setEditorIsDisabled(true);
     setButtonContents(<LoadingSpinner size="0.8em" />);
 
     const response = await fetch(
-      `api/entries/${encodeURIComponent(generateTodaysEntryFileName())}`,
+      `api/entries/${encodeURIComponent(todaysEntryName)}`,
       {
         method: "POST",
         body: JSON.stringify({ file: btoa(value) }),
@@ -58,15 +66,21 @@ const JournalEditor = ({
 
   return (
     <EditorContainer>
-      <CustomMarkdownEditor
-        value={value}
-        setValue={setValue}
-        disabled={editorIsDisabled}
-      />
+      {selectedEntry && selectedEntry !== todaysEntryName ? (
+        <JounralContainer entryName={selectedEntry} />
+      ) : (
+        <>
+          <CustomMarkdownEditor
+            value={value}
+            setValue={setValue}
+            disabled={editorIsDisabled}
+          />
 
-      <Button disabled={editorIsDisabled} onClick={() => saveEntry()}>
-        {buttonContents}
-      </Button>
+          <Button disabled={editorIsDisabled} onClick={() => saveEntry()}>
+            {buttonContents}
+          </Button>
+        </>
+      )}
     </EditorContainer>
   );
 };

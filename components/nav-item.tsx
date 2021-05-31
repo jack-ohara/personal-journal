@@ -2,6 +2,7 @@ import styled from "styled-components";
 import LoadingSpinner from "./loading-spinner";
 import { useState } from "react";
 import { useEntries } from "../backblaze-b2/get-entries";
+import { useAppContext } from "../utils/state";
 
 const Container = styled.li`
   width: 100%;
@@ -38,12 +39,24 @@ const Container = styled.li`
   }
 `;
 
-const NameContainer = styled.div`
+const NameContainer = styled.button`
   width: 100%;
   font-size: ${(props: StyleProps) => (props.isFolder ? "1.2em" : "0.9em")};
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
+  color: ${(props: StyleProps) => (props.isFolder ? "#a0c9cc" : "#d7ecd5")};
+  background-color: transparent;
+  border: none;
 
   &:hover {
-    cursor: ${(props: StyleProps) => (props.isFolder ? "pointer" : "initial")};
+    cursor: pointer;
+    text-decoration: ${(props: StyleProps) =>
+      props.isFolder ? "initial" : "underline"};
+  }
+
+  span {
+    font-size: 0.65em;
   }
 `;
 
@@ -90,6 +103,8 @@ export default function NavItem({ name }: NavItemProps) {
   let childEntries: string[] | undefined;
   let isLoading = false;
 
+  const { setSelectedEntry } = useAppContext();
+
   const entryIsFolder = isFolder(name);
 
   if (entryIsFolder) {
@@ -107,8 +122,13 @@ export default function NavItem({ name }: NavItemProps) {
 
   return (
     <Container isFolder={entryIsFolder}>
-      <NameContainer isFolder={entryIsFolder} onClick={() => expandChildren()}>
-        {entryIsFolder ? "📁 " : ""}
+      <NameContainer
+        isFolder={entryIsFolder}
+        onClick={() =>
+          entryIsFolder ? expandChildren() : setSelectedEntry(name)
+        }
+      >
+        {entryIsFolder && <span>📆</span>}
         {getDisplayName(name)}
       </NameContainer>
 

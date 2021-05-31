@@ -1,8 +1,23 @@
+:root {
+  --bg-colour-primary: #556b2f;
+  --bg-colour-secondary: #007282;
+  --text-colour-primary: black;
+  --text-colour-secondary: #fff;
+  --default-font: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  --textarea-size: 0px;
+}
+
 html,
 body {
   padding: 0;
   margin: 0;
   font-family: var(--default-font);
+}
+
+button {
+  font-family: var(--default-font);
+  font-weight: 600;
 }
 
 a {
@@ -12,16 +27,6 @@ a {
 
 * {
   box-sizing: border-box;
-}
-
-:root {
-  --bg-colour-primary: #556b2f;
-  --bg-colour-secondary: #007282;
-  --text-colour-primary: black;
-  --text-colour-secondary: #fff;
-  --default-font: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-  --textarea-size: 0px;
 }
 
 .custom-text-area {

@@ -24,10 +24,6 @@ const Layout = ({ children }: LayoutProps) => {
           href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap"
           rel="stylesheet"
         />
-        <script
-          type="text/javascript"
-          src="https://identity.netlify.com/v1/netlify-identity-widget.js"
-        ></script>
       </Head>
 
       <Main>{children}</Main>
