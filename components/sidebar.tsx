@@ -8,11 +8,13 @@ import { useAppContext } from "../utils/state";
 const Container = styled.aside`
   min-width: 305px;
   min-height: 100%;
-  background-color: var(--bg-colour-primary);
+  background-color: var(--bg-colour-secondary);
   display: ${(props: StyleProps) => (props.isDisplayed ? "flex" : "none")};
   flex-direction: column;
   justify-content: space-between;
   color: white;
+  position: absolute;
+  z-index: 1;
 `;
 
 const NavContainer = styled.nav`

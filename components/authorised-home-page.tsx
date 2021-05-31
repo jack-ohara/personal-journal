@@ -21,6 +21,8 @@ const ContentContainer = styled.div`
   overflow: auto;
   align-items: center;
   padding: 1em;
+  max-height: 100vh;
+  overflow: auto;
 `;
 
 const MenuButton = styled.button`
@@ -69,7 +71,10 @@ export default function AuthorisedHomePage() {
 
       <ContentContainer>
         {!navIsDisplayed && (
-          <MenuButton onClick={() => setNavIsDisplayed(true)}>
+          <MenuButton
+            onClick={() => setNavIsDisplayed(true)}
+            title="Open navigation"
+          >
             <div />
             <div />
             <div />
