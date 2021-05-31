@@ -49,12 +49,16 @@ export default function Login() {
   const [buttonContents, setButtonContents] =
     useState<string | JSX.Element>("Login");
 
-  const { login } = useAppContext();
+  const { user, login } = useAppContext();
 
   const router = useRouter();
 
   useEffect(() => {
     router.prefetch("/");
+
+    if (user) {
+      router.push("/");
+    }
   });
 
   const doLogin = async (event: FormEvent<HTMLFormElement>) => {
