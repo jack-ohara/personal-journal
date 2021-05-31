@@ -15,6 +15,7 @@ const Container = styled.aside`
   color: white;
   position: absolute;
   z-index: 1;
+  box-shadow: 0px 0px 30px 32px rgba(0, 0, 0, 0.42);
 `;
 
 const NavContainer = styled.nav`
@@ -42,17 +43,23 @@ const Button = styled.button`
   }
 `;
 
+const MenuTop = styled.div`
+  display: flex;
+  align-items: flex-start;
+`;
+
+const HideMenuButton = styled(Button)`
+  font-weight: 800;
+  margin-top: 1em;
+  margin-right: 1em;
+`;
+
 const AuthContainer = styled.div`
   padding: 0.5em;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.2em;
-`;
-
-const MenuControls = styled.div`
-  display: flex;
   justify-content: space-between;
+  align-items: center;
+  gap: 0.2em;
 `;
 
 interface StyleProps {
@@ -71,33 +78,30 @@ const Sidebar = () => {
 
   return (
     <Container isDisplayed={navIsDisplayed}>
-      {isLoading ? (
-        <LoadingSpinner size="2em" />
-      ) : (
-        childItems && (
-          <NavContainer>
-            <ul>
-              {childItems.map((e) => (
-                <NavItem key={`year-${e}`} name={e} />
-              ))}
-            </ul>
-          </NavContainer>
-        )
-      )}
+      <MenuTop>
+        {isLoading ? (
+          <LoadingSpinner size="2em" />
+        ) : (
+          childItems && (
+            <NavContainer>
+              <ul>
+                {childItems.map((e) => (
+                  <NavItem key={`year-${e}`} name={e} />
+                ))}
+              </ul>
+            </NavContainer>
+          )
+        )}
 
-      <MenuControls>
-        <AuthContainer>
-          👋 Hi, {user?.user_metadata.full_name}
-          <Button onClick={() => doLogout()}>Logout</Button>
-        </AuthContainer>
-
-        <Button
-          style={{ marginRight: "1em", fontWeight: 800 }}
-          onClick={() => setNavIsDisplayed(false)}
-        >
+        <HideMenuButton onClick={() => setNavIsDisplayed(false)}>
           {"<<"}
-        </Button>
-      </MenuControls>
+        </HideMenuButton>
+      </MenuTop>
+
+      <AuthContainer>
+        👋 Hi, {user?.user_metadata.full_name}
+        <Button onClick={() => doLogout()}>Logout</Button>
+      </AuthContainer>
     </Container>
   );
 };
