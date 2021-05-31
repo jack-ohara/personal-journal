@@ -5,7 +5,6 @@ import useSWR from "swr";
 import generateTodaysEntryFileName from "../personal-journal/file-name-generator";
 import fetcher from "../utils/fetch";
 import { format } from "date-fns";
-import GoTrue from "gotrue-js";
 
 const Title = styled.h1`
   text-align: center;
@@ -31,11 +30,7 @@ interface StoicQuoteResponse {
   author: string;
 }
 
-interface AuthorisedHomePageProps {
-  auth: GoTrue;
-}
-
-export default function AuthorisedHomePage({ auth }: AuthorisedHomePageProps) {
+export default function AuthorisedHomePage() {
   const { data } = useSWR<EntryResponse>(
     `/api/entries/${encodeURIComponent(generateTodaysEntryFileName())}`,
     fetcher,
@@ -57,7 +52,7 @@ export default function AuthorisedHomePage({ auth }: AuthorisedHomePageProps) {
   return (
     <>
       <aside>
-        <Sidebar auth={auth} />
+        <Sidebar />
       </aside>
 
       <ContentContainer>

@@ -1,13 +1,41 @@
 import styled from "styled-components";
+import LoadingSpinner from "./loading-spinner";
 import { useState } from "react";
 import { useEntries } from "../backblaze-b2/get-entries";
-import LoadingSpinner from "./loading-spinner";
 
 const Container = styled.li`
-  padding: 0.2em 1em;
   width: 100%;
   font-size: 1.6rem;
   font-weight: 600;
+  position: relative;
+  padding: ${(props: StyleProps) => (props.isFolder ? "5px 0 5px 15px" : "")};
+  box-sizing: border-box;
+
+  &:before {
+    position: absolute;
+    top: 15px;
+    left: 0;
+    width: 10px;
+    height: 1px;
+    margin: auto;
+    content: "";
+    background-color: black;
+  }
+
+  &:after {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 1px;
+    height: 100%;
+    content: "";
+    background-color: black;
+  }
+
+  &:last-child:after {
+    height: 15px;
+  }
 `;
 
 const NameContainer = styled.div`
@@ -19,6 +47,21 @@ const NameContainer = styled.div`
   }
 `;
 
+const FileUnorderedList = styled.ul`
+  li:first-of-type {
+    padding-bottom: 0;
+  }
+
+  li:last-of-type {
+    padding-top: 0;
+  }
+
+  > li:not(:first-of-type),
+  > li:not(:last-of-type) {
+    padding: 0 0 0 15px;
+  }
+`;
+
 interface NavItemProps {
   name: string;
 }
@@ -27,7 +70,7 @@ interface StyleProps {
   isFolder: boolean;
 }
 
-function getDisplayName(name: string) {
+function getDisplayName(name: string): string {
   let displayName = name.endsWith("/") ? name.slice(0, name.length - 1) : name;
 
   displayName = displayName.replace(/^.*[\\\/]/, "");
@@ -35,23 +78,27 @@ function getDisplayName(name: string) {
   return displayName.replace(/\.[^/.]+$/, "");
 }
 
-export default function NavItem({ name }: NavItemProps) {
-  const {
-    entries: childFolders,
-    isLoading: foldersIsLoading,
-    isError: foldersIsError,
-  } = useEntries(name, "/");
-  const {
-    entries: childEntries,
-    isLoading: filesIsLoading,
-    isError: filesIsError,
-  } = useEntries(name, "");
+function isFolder(name: string): boolean {
+  return name.endsWith("/");
+}
 
-  const isFolder = name.endsWith("/");
+function getKey(name: string): string {
+  return isFolder(name) ? `month-${getDisplayName(name)}` : name;
+}
+
+export default function NavItem({ name }: NavItemProps) {
+  let childEntries: string[] | undefined;
+  let isLoading = false;
+
+  const entryIsFolder = isFolder(name);
+
+  if (entryIsFolder) {
+    ({ entries: childEntries, isLoading } = useEntries(name, "/"));
+  }
   const [displayChildItems, setDisplayChildItems] = useState(false);
 
   const expandChildren = () => {
-    if (!isFolder) {
+    if (!entryIsFolder) {
       return;
     }
 
@@ -59,24 +106,20 @@ export default function NavItem({ name }: NavItemProps) {
   };
 
   return (
-    <Container>
-      <NameContainer isFolder={isFolder} onClick={() => expandChildren()}>
-        {isFolder ? "📁 " : ""}
+    <Container isFolder={entryIsFolder}>
+      <NameContainer isFolder={entryIsFolder} onClick={() => expandChildren()}>
+        {entryIsFolder ? "📁 " : ""}
         {getDisplayName(name)}
       </NameContainer>
 
       {displayChildItems &&
-        (foldersIsLoading || filesIsLoading ? (
+        (isLoading ? (
           <LoadingSpinner size="1em" />
         ) : (
-          <ul>
-            {childFolders &&
-              childFolders.map((e) => (
-                <NavItem key={`month-${getDisplayName(e)}`} name={e} />
-              ))}
+          <FileUnorderedList>
             {childEntries &&
-              childEntries.map((e) => <NavItem key={`entry-${e}`} name={e} />)}
-          </ul>
+              childEntries.map((e) => <NavItem key={getKey(e)} name={e} />)}
+          </FileUnorderedList>
         ))}
     </Container>
   );

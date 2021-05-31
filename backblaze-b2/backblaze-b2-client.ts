@@ -81,7 +81,9 @@ export default class BackblazeB2Client {
     const authToken = await this.getAuthToken();
     const apiUrl = await this.getApiUrl();
 
-    console.debug("Retreiving file names from backblaze");
+    console.debug(
+      `Retreiving file names from backblaze. Prefix: '${prefix}', delimiter: '${delimiter}'`
+    );
 
     if (!authToken) {
       throw new Error(`No auth token found`);

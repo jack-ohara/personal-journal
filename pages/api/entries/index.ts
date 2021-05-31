@@ -16,12 +16,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         return;
       }
 
-      console.log(prefix);
-      console.log(delimiter);
-
       const result = await getAllEntries(prefix, delimiter);
 
-      res.status(201).json({ entries: result });
+      res.status(200).json({ entries: result });
     } else {
       res.status(405).end();
     }

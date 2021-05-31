@@ -4,7 +4,7 @@ import Layout from "../components/layout";
 import LoadingSpinner from "../components/loading-spinner";
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/dist/client/router";
-import { getGoTrue } from "../utils/go-true";
+import { useAppContext } from "../utils/state";
 
 const LoginForm = styled.form`
   margin: auto auto;
@@ -49,23 +49,22 @@ export default function Login() {
   const [buttonContents, setButtonContents] =
     useState<string | JSX.Element>("Login");
 
+  const { login } = useAppContext();
+
   const router = useRouter();
-  const auth = getGoTrue();
 
   useEffect(() => {
     router.prefetch("/");
   });
 
-  const login = async (event: FormEvent<HTMLFormElement>) => {
+  const doLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     setButtonContents(<LoadingSpinner size="0.67em" />);
     setLoginError(false);
 
     try {
-      const user = await auth.login(emailAddress, password, true);
-
-      if (user) {
+      if (await login(emailAddress, password)) {
         router.push("/");
       }
     } catch (error) {
@@ -79,7 +78,7 @@ export default function Login() {
 
   return (
     <Layout>
-      <LoginForm onSubmit={(e) => login(e)}>
+      <LoginForm onSubmit={(e) => doLogin(e)}>
         <Heading>Login</Heading>
         <HorizontalRule />
         <Input
