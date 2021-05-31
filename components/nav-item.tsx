@@ -45,7 +45,7 @@ const NameContainer = styled.button`
   display: flex;
   align-items: center;
   gap: 0.3em;
-  color: ${(props: StyleProps) => (props.isFolder ? "#a0c9cc" : "#d7ecd5")};
+  color: ${(props: StyleProps) => (props.isFolder ? "#a7d3bf" : "#d7ecd5")};
   background-color: transparent;
   border: none;
 
