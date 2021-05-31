@@ -40,6 +40,7 @@ const MenuButton = styled.button`
     border: 2px solid black;
     min-width: 30px;
     border-radius: 6px;
+    background-color: black;
   }
 `;
 
