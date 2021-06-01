@@ -1,12 +1,12 @@
 import styled from "styled-components";
 import Sidebar from "../components/sidebar";
 import JournalEditor from "../components/journal-editor";
-import useSWR from "swr";
 import generateTodaysEntryFileName from "../personal-journal/file-name-generator";
-import fetcher from "../utils/fetch";
 import { format } from "date-fns";
 import { useEntry } from "../backblaze-b2/get-entry";
 import { useAppContext } from "../utils/state";
+import { useEffect } from "react";
+import getRandomQuote from "../utils/get-random-quote";
 
 const Title = styled.h1`
   text-align: center;
@@ -44,27 +44,24 @@ const MenuButton = styled.button`
   }
 `;
 
-interface StoicQuoteResponse {
-  body: string;
-  author: string;
-}
-
 export default function AuthorisedHomePage() {
-  const { entry } = useEntry(generateTodaysEntryFileName());
-
-  const { data: randomQuoteData } = useSWR<StoicQuoteResponse>(
-    "https://stoicquotesapi.com/v1/api/quotes/random",
-    fetcher,
-    { revalidateOnFocus: false, revalidateOnReconnect: false }
+  const { entry, isLoading: entryIsLoading } = useEntry(
+    generateTodaysEntryFileName()
   );
+
+  const { quote, isLoading: quoteIsLoading } = getRandomQuote();
 
   const getNewEntryText = () => {
     return `# ${format(new Date(), "do MMMM yyyy")}\n\n> ${
-      randomQuoteData?.body
-    }\n>\n> \\- ${randomQuoteData?.author}\n\n`;
+      quote?.body
+    }\n>\n> \\- ${quote?.author}\n\n`;
   };
 
   const { navIsDisplayed, setNavIsDisplayed } = useAppContext();
+
+  useEffect(() => {
+    console.log(entry);
+  }, [entry]);
 
   return (
     <>
@@ -83,7 +80,7 @@ export default function AuthorisedHomePage() {
         )}
         <Title>Jack's Journal</Title>
 
-        {entry && randomQuoteData ? (
+        {!entryIsLoading && !quoteIsLoading ? (
           <JournalEditor
             editorStartValue={entry ? entry : getNewEntryText()}
             editingIsDisabled={false}
