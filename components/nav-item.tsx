@@ -3,6 +3,8 @@ import LoadingSpinner from "./loading-spinner";
 import { useState } from "react";
 import { useEntries } from "../backblaze-b2/get-entries";
 import { useAppContext } from "../utils/state";
+import DateFns from "date-fns";
+import moment from "moment";
 
 const Container = styled.li`
   width: 100%;
@@ -112,7 +114,28 @@ export default function NavItem({ name }: NavItemProps) {
   const entryIsFolder = isFolder(name);
 
   if (entryIsFolder) {
-    ({ entries: childEntries, isLoading } = useEntries(name, "/"));
+    let unsortedEntries: string[] | undefined;
+    ({ entries: unsortedEntries, isLoading } = useEntries(name, "/"));
+
+    if (unsortedEntries && isFolder(unsortedEntries[0])) {
+      // Assume this is a list of months
+
+      console.table(unsortedEntries);
+
+      childEntries = unsortedEntries
+        .map((entryName) => {
+          return {
+            name: entryName,
+            monthNum: moment().month(getDisplayName(entryName)).format("M"),
+          };
+        })
+        .sort((a, b) => (a.monthNum > b.monthNum ? 1 : -1))
+        .map((month) => month.name);
+
+      console.table(childEntries);
+    } else {
+      childEntries = unsortedEntries;
+    }
   }
   const [displayChildItems, setDisplayChildItems] = useState(false);
 

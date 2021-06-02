@@ -25,3 +25,7 @@ export default function getRandomQuote(): SwrReponse {
     isError: error,
   };
 }
+
+// TODO
+// Write in a retry for 500 or 503 response
+// Figure out why I'm getting 'malformed utf-8 data' errors on live

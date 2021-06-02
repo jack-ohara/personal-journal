@@ -67,8 +67,10 @@ interface StyleProps {
 }
 
 const Sidebar = () => {
-  const { entries: childItems, isLoading } = useEntries("", "/");
+  const { entries: years, isLoading } = useEntries("", "/");
   const { user, logout, navIsDisplayed, setNavIsDisplayed } = useAppContext();
+
+  const sortedYears = years ? years.sort() : years;
 
   const doLogout = async () => {
     await logout();
@@ -82,10 +84,10 @@ const Sidebar = () => {
         {isLoading ? (
           <LoadingSpinner size="2em" />
         ) : (
-          childItems && (
+          sortedYears && (
             <NavContainer>
               <ul>
-                {childItems.map((e) => (
+                {sortedYears.map((e) => (
                   <NavItem key={`year-${e}`} name={e} />
                 ))}
               </ul>

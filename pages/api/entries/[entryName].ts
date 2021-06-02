@@ -1,4 +1,4 @@
-import createEntry from "../../../personal-journal/create-entry";
+import createEntry from "../../../backblaze-b2/create-entry";
 import getEntry from "../../../personal-journal/get-entry";
 import { NextApiRequest, NextApiResponse } from "next";
 import { decryptFile, encryptFile } from "../../../utils/file-encryption";
@@ -32,6 +32,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
         return;
       }
+
+      console.log(process.env.ENCRYPTION_PASSWORD);
 
       const decryptedFile = decryptFile(
         Buffer.from(entry, "base64").toString(),
