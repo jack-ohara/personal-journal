@@ -43,9 +43,12 @@ const CustomMarkdownEditor = ({
   const ref = useRef<ReactMde>(null);
 
   useEffect(() => {
-    setTextAreaHeight();
     ref.current?.finalRefs.textarea?.current?.focus();
   }, []);
+
+  useEffect(() => {
+    setTextAreaHeight();
+  }, [value]);
 
   return (
     <EditorContainer id="editor-container">
