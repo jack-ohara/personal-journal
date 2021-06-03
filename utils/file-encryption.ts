@@ -1,7 +1,7 @@
 import CryptoJs from "crypto-js";
 
 function createPasswordHash(key: string): string {
-  return CryptoJs.SHA256(key).toString(CryptoJs.enc.Hex);
+  return CryptoJs.SHA3(key).toString(CryptoJs.enc.Hex);
 }
 
 export function encryptFile(fileContents: string, password: string) {
@@ -11,7 +11,7 @@ export function encryptFile(fileContents: string, password: string) {
   ).toString();
 }
 
-export function decryptFile(data: string, password: string) {
+export function decryptFile(data: string, password: string): string {
   console.log(password);
   const passwordHash = createPasswordHash(password);
   console.log(`hash: ${passwordHash}`);
@@ -24,5 +24,5 @@ export function decryptFile(data: string, password: string) {
 
   console.log(`string: ${string}`);
 
-  return string;
+  return JSON.parse(string).fileContents;
 }
