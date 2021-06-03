@@ -120,8 +120,6 @@ export default function NavItem({ name }: NavItemProps) {
     if (unsortedEntries && isFolder(unsortedEntries[0])) {
       // Assume this is a list of months
 
-      console.table(unsortedEntries);
-
       childEntries = unsortedEntries
         .map((entryName) => {
           return {
@@ -131,8 +129,6 @@ export default function NavItem({ name }: NavItemProps) {
         })
         .sort((a, b) => (a.monthNum > b.monthNum ? 1 : -1))
         .map((month) => month.name);
-
-      console.table(childEntries);
     } else {
       childEntries = unsortedEntries;
     }

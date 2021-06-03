@@ -6,7 +6,7 @@ function createPasswordHash(key: string): string {
 
 export function encryptFile(fileContents: string, password: string) {
   return CryptoJs.AES.encrypt(
-    fileContents,
+    JSON.stringify({ fileContents }),
     createPasswordHash(password)
   ).toString();
 }
