@@ -12,7 +12,15 @@ export function encryptFile(fileContents: string, password: string) {
 }
 
 export function decryptFile(data: string, password: string) {
-  const bytes = CryptoJs.AES.decrypt(data, createPasswordHash(password));
+  console.log(password);
+  const passwordHash = createPasswordHash(password);
+  console.log(`hash: ${passwordHash}`);
+  console.log(`data: ${data}`);
+  const bytes = CryptoJs.AES.decrypt(data, passwordHash);
 
-  return bytes.toString(CryptoJs.enc.Utf8);
+  console.log(`bytes: ${bytes}`);
+
+  const string = bytes.toString(CryptoJs.enc.Utf8);
+
+  return string;
 }

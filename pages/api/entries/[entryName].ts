@@ -33,8 +33,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         return;
       }
 
-      console.log(process.env.ENCRYPTION_PASSWORD);
-
       const decryptedFile = decryptFile(
         Buffer.from(entry, "base64").toString(),
         process.env.ENCRYPTION_PASSWORD
