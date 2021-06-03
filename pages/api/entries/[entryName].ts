@@ -34,7 +34,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       }
 
       const decryptedFile = decryptFile(
-        Buffer.from(entry, "base64").toString(),
+        Buffer.from(entry, "base64").toString("utf-8"),
         process.env.ENCRYPTION_PASSWORD
       );
 
