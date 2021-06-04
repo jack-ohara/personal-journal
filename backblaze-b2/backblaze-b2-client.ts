@@ -17,7 +17,7 @@ export default class BackblazeB2Client {
     this.bucketId = process.env.BUCKET_ID;
   }
 
-  public getFile = async (entryName: string) => {
+  public async getFile(entryName: string): Promise<string | null> {
     const authToken = await this.getAuthToken();
     const downloadUrl = await this.getDownloadUrl();
     const bucketName = await this.getBucketName();
@@ -51,6 +51,8 @@ export default class BackblazeB2Client {
         console.debug(`File not found in backblaze: ${entryName}`);
 
         return null;
+      } else if (response.status === 500 || response.status === 503) {
+        return await this.getFile(entryName);
       } else {
         console.error(response);
         throw new Error(
@@ -61,7 +63,7 @@ export default class BackblazeB2Client {
       console.error(error);
       throw error;
     }
-  };
+  }
 
   public uploadFile = async (fileName: string, base64File: string) => {
     const getUploadUrlResponse = await this.getUploadUrl();
@@ -102,27 +104,24 @@ export default class BackblazeB2Client {
     const url = `${apiUrl}/b2api/v2/b2_list_file_names`;
 
     try {
-      const response = await fetch(url, {
+      const result = await this.callBackblaze<ListFileNamesResponse>(url, {
         method: "POST",
         headers: headers,
         body: JSON.stringify(body),
       });
 
-      if (response.ok) {
-        const listFileNamesResponse: ListFileNamesResponse =
-          await response.json();
-
-        console.log(
-          `Successfully retrieved ${listFileNamesResponse.files.length} file names from backblaze`
-        );
-
-        return listFileNamesResponse.files;
-      } else {
-        console.error(response);
-        throw new Error(`Failed to list files: ${JSON.stringify(response)}`);
+      if (!result?.files.length) {
+        throw new Error("Unable to retrieve files from backblaze");
       }
+
+      console.log(
+        `Successfully retrieved ${result.files.length} file names from backblaze`
+      );
+
+      return result?.files;
     } catch (error) {
-      console.error(error);
+      console.error("Unable to retrieve files from backblaze");
+
       throw error;
     }
   };
@@ -144,20 +143,16 @@ export default class BackblazeB2Client {
     };
 
     try {
-      const response = await fetch(uploadUrl, {
+      await this.callBackblaze<void>(uploadUrl, {
         method: "POST",
         headers: headers,
         body: file,
       });
 
-      if (response.ok) {
-        console.log(`Successfully uploaded ${fileName} to backblaze!`);
-      } else {
-        console.error(response);
-        throw new Error(`Failed to upload file: ${JSON.stringify(response)}`);
-      }
+      console.log(`Successfully uploaded ${fileName} to backblaze!`);
     } catch (error) {
-      console.error(error);
+      console.error("Failed to upload file");
+
       throw error;
     }
   };
@@ -183,34 +178,27 @@ export default class BackblazeB2Client {
     const url = `${apiUrl}/b2api/v2/b2_get_upload_url`;
 
     try {
-      const response = await fetch(url, {
+      const result = await this.callBackblaze<GetUploadUrlResponse>(url, {
         method: "POST",
         headers: headers,
         body: JSON.stringify(body),
       });
 
-      if (response.ok) {
-        const getUploadUrlResponse: GetUploadUrlResponse =
-          await response.json();
-
-        console.debug("Successfully retrieved upload URL from backblaze");
-
-        return getUploadUrlResponse;
-      } else {
-        console.error(response);
-        throw new Error(
-          `Failed to retrieve the get_upload_url: ${JSON.stringify(response)}`
-        );
+      if (!result) {
+        throw new Error("Unable to retrieve upload URL from backblaze");
       }
+
+      console.debug("Successfully retrieved upload URL from backblaze");
+
+      return result;
     } catch (error) {
-      console.error(error);
+      console.error("Unable to retrieve upload URL from backblaze");
+
       throw error;
     }
   };
 
   private getAuthToken = async () => {
-    console.debug("Generating auth from backblaze...");
-
     if (!this.authorization) {
       await this.getAuthorisation();
     }
@@ -243,29 +231,53 @@ export default class BackblazeB2Client {
   };
 
   private getAuthorisation = async () => {
+    console.debug("Generating auth from backblaze...");
+
     const credentials = Buffer.from(
       `${this.applicationKeyId}:${this.applicationKey}`
     ).toString("base64");
 
-    var response = await fetch(
-      "https://api.backblazeb2.com/b2api/v2/b2_authorize_account",
-      {
-        headers: {
-          Authorization: `Basic ${credentials}`,
-          "content-type": "application/json; charset=utf-8",
-        },
-      }
-    );
+    try {
+      const result = await this.callBackblaze<BackblazeB2Authorization>(
+        "https://api.backblazeb2.com/b2api/v2/b2_authorize_account",
+        {
+          headers: {
+            Authorization: `Basic ${credentials}`,
+            "content-type": "application/json; charset=utf-8",
+          },
+        }
+      );
 
-    if (response.ok) {
-      this.authorization = await response.json();
+      this.authorization = result ?? undefined;
 
       console.debug("Successfully received auth from backblaze");
-    } else {
-      console.error(response);
-      throw new Error(
-        `Unable to retrieve authorisation: ${JSON.stringify(response)}`
-      );
+    } catch (error) {
+      console.error("Unable to retrieve authorisation from backblaze");
+
+      throw error;
     }
   };
+
+  private async callBackblaze<ResponseType>(
+    url: string,
+    request?: RequestInit | undefined
+  ): Promise<ResponseType | null> {
+    try {
+      const response = await fetch(url, request);
+
+      if (response.ok) {
+        const responseObj: ResponseType = await response.json();
+
+        return responseObj;
+      } else if (response.status === 500 || response.status === 503) {
+        return await this.callBackblaze(url, request);
+      }
+    } catch (error) {
+      console.error(error);
+
+      throw error;
+    }
+
+    return null;
+  }
 }
