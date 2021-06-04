@@ -66,11 +66,23 @@ interface StyleProps {
   isDisplayed: boolean;
 }
 
+function getSortedYears(entries: string[]): string[] {
+  console.table(entries);
+  const result = entries.map((e) => e.slice(e.indexOf("/") + 1)).sort();
+  console.table(result);
+  return result;
+}
+
 const Sidebar = () => {
-  const { entries: years, isLoading } = useEntries("", "/");
   const { user, logout, navIsDisplayed, setNavIsDisplayed } = useAppContext();
 
-  const sortedYears = years ? years.sort() : years;
+  if (!user) {
+    throw new Error("User is not logged in");
+  }
+
+  const { entries, isLoading } = useEntries(`${user.email}/`, "/");
+
+  const sortedYears = entries ? getSortedYears(entries) : entries;
 
   const doLogout = async () => {
     await logout();

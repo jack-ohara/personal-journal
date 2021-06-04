@@ -3,7 +3,6 @@ import LoadingSpinner from "./loading-spinner";
 import { useState } from "react";
 import { useEntries } from "../backblaze-b2/get-entries";
 import { useAppContext } from "../utils/state";
-import DateFns from "date-fns";
 import moment from "moment";
 
 const Container = styled.li`
@@ -109,13 +108,20 @@ export default function NavItem({ name }: NavItemProps) {
   let childEntries: string[] | undefined;
   let isLoading = false;
 
-  const { setSelectedEntry } = useAppContext();
+  const { user, setSelectedEntry } = useAppContext();
+
+  if (!user) {
+    throw new Error("User is not logged in");
+  }
 
   const entryIsFolder = isFolder(name);
 
   if (entryIsFolder) {
     let unsortedEntries: string[] | undefined;
-    ({ entries: unsortedEntries, isLoading } = useEntries(name, "/"));
+    ({ entries: unsortedEntries, isLoading } = useEntries(
+      `${user.email}/${name}`,
+      "/"
+    ));
 
     if (unsortedEntries && isFolder(unsortedEntries[0])) {
       // Assume this is a list of months
