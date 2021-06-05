@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useEntries } from "../backblaze-b2/get-entries";
 import { useAppContext } from "../utils/state";
 import moment from "moment";
+import generateTodaysEntryFileName from "../personal-journal/file-name-generator";
 
 const Container = styled.li`
   width: 100%;
@@ -120,20 +121,29 @@ export default function NavItem({ name }: NavItemProps) {
     let unsortedEntries: string[] | undefined;
     ({ entries: unsortedEntries, isLoading } = useEntries(name, "/"));
 
-    if (unsortedEntries && isFolder(unsortedEntries[0])) {
-      // Assume this is a list of months
+    if (unsortedEntries) {
+      if (isFolder(unsortedEntries[0])) {
+        // Assume this is a list of months
 
-      childEntries = unsortedEntries
-        .map((entryName) => {
-          return {
-            name: entryName,
-            monthNum: moment().month(getDisplayName(entryName)).format("M"),
-          };
-        })
-        .sort((a, b) => (a.monthNum > b.monthNum ? 1 : -1))
-        .map((month) => month.name);
-    } else {
-      childEntries = unsortedEntries;
+        childEntries = unsortedEntries
+          .map((entryName) => {
+            return {
+              name: entryName,
+              monthNum: moment().month(getDisplayName(entryName)).format("M"),
+            };
+          })
+          .sort((a, b) => (a.monthNum > b.monthNum ? 1 : -1))
+          .map((month) => month.name);
+      } else {
+        // Add an entry for today if one isn't there
+        const todaysEntry = generateTodaysEntryFileName();
+
+        if (!unsortedEntries.includes(todaysEntry)) {
+          unsortedEntries.push(todaysEntry);
+        }
+
+        childEntries = unsortedEntries;
+      }
     }
   }
   const [displayChildItems, setDisplayChildItems] = useState(false);

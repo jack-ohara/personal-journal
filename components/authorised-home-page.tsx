@@ -5,7 +5,6 @@ import generateTodaysEntryFileName from "../personal-journal/file-name-generator
 import { format } from "date-fns";
 import { useEntry } from "../backblaze-b2/get-entry";
 import { useAppContext } from "../utils/state";
-import { useEffect } from "react";
 import getRandomQuote from "../utils/get-random-quote";
 
 const Title = styled.h1`
@@ -58,10 +57,6 @@ export default function AuthorisedHomePage() {
   };
 
   const { navIsDisplayed, setNavIsDisplayed } = useAppContext();
-
-  useEffect(() => {
-    console.log(entry);
-  }, [entry]);
 
   return (
     <>
