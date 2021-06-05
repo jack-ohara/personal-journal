@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import React from "react";
+import React, { RefObject } from "react";
 import LoadingSpinner from "./loading-spinner";
 import NavItem from "./nav-item";
 import { useEntries } from "../backblaze-b2/get-entries";
@@ -79,7 +79,11 @@ function getSortedYears(entries: string[]): string[] {
   return result.map((e) => e.fullName);
 }
 
-const Sidebar = () => {
+interface Props {
+  asideRef: RefObject<HTMLElement>;
+}
+
+const Sidebar = ({ asideRef }: Props) => {
   const { user, logout, navIsDisplayed, setNavIsDisplayed } = useAppContext();
 
   if (!user) {
@@ -97,7 +101,7 @@ const Sidebar = () => {
   };
 
   return (
-    <Container isDisplayed={navIsDisplayed}>
+    <Container ref={asideRef} isDisplayed={navIsDisplayed} id="nav-menu">
       <MenuTop>
         {isLoading ? (
           <LoadingSpinner size="2em" />

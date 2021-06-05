@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import LoadingSpinner from "./loading-spinner";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useEntries } from "../backblaze-b2/get-entries";
 import { useAppContext } from "../utils/state";
 import moment from "moment";
@@ -109,7 +109,7 @@ export default function NavItem({ name }: NavItemProps) {
   let childEntries: string[] | undefined;
   let isLoading = false;
 
-  const { user, setSelectedEntry } = useAppContext();
+  const { user, setSelectedEntry, navIsDisplayed } = useAppContext();
 
   if (!user) {
     throw new Error("User is not logged in");
@@ -155,6 +155,10 @@ export default function NavItem({ name }: NavItemProps) {
 
     setDisplayChildItems((prev) => !prev);
   };
+
+  useEffect(() => {
+    setDisplayChildItems(false);
+  }, [navIsDisplayed]);
 
   return (
     <Container isFolder={entryIsFolder}>

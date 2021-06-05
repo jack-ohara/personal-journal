@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { useEntry } from "../backblaze-b2/get-entry";
 import { useAppContext } from "../utils/state";
 import getRandomQuote from "../utils/get-random-quote";
+import { useEffect, useRef } from "react";
 
 const Title = styled.h1`
   text-align: center;
@@ -47,6 +48,7 @@ export default function AuthorisedHomePage() {
   const { entry, isLoading: entryIsLoading } = useEntry(
     generateTodaysEntryFileName()
   );
+  const sidebarNode = useRef<HTMLElement>(null);
 
   const { quote, isLoading: quoteIsLoading } = getRandomQuote();
 
@@ -58,9 +60,25 @@ export default function AuthorisedHomePage() {
 
   const { navIsDisplayed, setNavIsDisplayed } = useAppContext();
 
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClick);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+    };
+  }, []);
+
+  const handleClick = (event: MouseEvent) => {
+    if (event.target instanceof Element) {
+      if (!sidebarNode.current?.contains(event.target)) {
+        setNavIsDisplayed(false);
+      }
+    }
+  };
+
   return (
     <>
-      <Sidebar />
+      <Sidebar asideRef={sidebarNode} />
 
       <ContentContainer>
         {!navIsDisplayed && (
