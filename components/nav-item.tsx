@@ -118,10 +118,7 @@ export default function NavItem({ name }: NavItemProps) {
 
   if (entryIsFolder) {
     let unsortedEntries: string[] | undefined;
-    ({ entries: unsortedEntries, isLoading } = useEntries(
-      `${user.email}/${name}`,
-      "/"
-    ));
+    ({ entries: unsortedEntries, isLoading } = useEntries(name, "/"));
 
     if (unsortedEntries && isFolder(unsortedEntries[0])) {
       // Assume this is a list of months

@@ -67,10 +67,16 @@ interface StyleProps {
 }
 
 function getSortedYears(entries: string[]): string[] {
-  console.table(entries);
-  const result = entries.map((e) => e.slice(e.indexOf("/") + 1)).sort();
-  console.table(result);
-  return result;
+  const result = entries
+    .map((e) => {
+      return {
+        fullName: e,
+        year: e.substring(e.indexOf("/") + 1, e.indexOf("/") + 5),
+      };
+    })
+    .sort((a, b) => (a.year > b.year ? 1 : -1));
+
+  return result.map((e) => e.fullName);
 }
 
 const Sidebar = () => {
