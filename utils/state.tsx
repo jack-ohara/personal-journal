@@ -13,6 +13,7 @@ type AppContext = {
   user: User | null;
   login: (emailAddress: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
+  acceptInvite: (inviteToken: string, password: string) => Promise<boolean>;
   selectedEntry: string | undefined;
   setSelectedEntry: Dispatch<SetStateAction<string | undefined>>;
   navIsDisplayed: boolean;
@@ -23,6 +24,7 @@ const defaultContext: AppContext = {
   user: null,
   login: () => new Promise(() => {}),
   logout: () => new Promise(() => {}),
+  acceptInvite: () => new Promise(() => {}),
   selectedEntry: undefined,
   setSelectedEntry: () => {},
   navIsDisplayed: false,
@@ -57,10 +59,19 @@ export function AppWrapper({ children }: Props) {
     await user?.logout();
   };
 
+  const acceptInvite = async (inviteToken: string, password: string) => {
+    const user = await auth.acceptInvite(inviteToken, password, true);
+
+    setUser(user);
+
+    return Boolean(user);
+  };
+
   const initialState = {
     user,
     login,
     logout,
+    acceptInvite,
     selectedEntry,
     setSelectedEntry,
     navIsDisplayed,
