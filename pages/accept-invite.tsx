@@ -80,6 +80,7 @@ export default function AcceptInvite() {
 
     if (password !== confirmPassword) {
       setLoginError(true);
+      setButtonContents("Login");
       return;
     }
 

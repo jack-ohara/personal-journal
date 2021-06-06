@@ -106,15 +106,17 @@ const Sidebar = ({ asideRef }: Props) => {
         {isLoading ? (
           <LoadingSpinner size="2em" />
         ) : (
-          sortedYears && (
-            <NavContainer>
+          <NavContainer>
+            {sortedYears ? (
               <ul>
                 {sortedYears.map((e) => (
                   <NavItem key={`year-${e}`} name={e} />
                 ))}
               </ul>
-            </NavContainer>
-          )
+            ) : (
+              <p>Very empty 😢</p>
+            )}
+          </NavContainer>
         )}
 
         <HideMenuButton onClick={() => setNavIsDisplayed(false)}>
