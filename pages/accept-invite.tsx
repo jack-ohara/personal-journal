@@ -78,6 +78,11 @@ export default function AcceptInvite() {
     setButtonContents(<LoadingSpinner size="0.67em" />);
     setLoginError(false);
 
+    if (password !== confirmPassword) {
+      setLoginError(true);
+      return;
+    }
+
     try {
       if (await acceptInvite(token, password)) {
         router.push("/");
